@@ -1,0 +1,16 @@
+# File: src/main/resources/application.yml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/si_releves?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: abc010203...
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  secret: "ReplaceThisWithAStrongRandomSecretKey_AtLeast_32_Chars"
+  expiration-minutes: 30
+server:
+  port: 8580
