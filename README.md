@@ -65,7 +65,7 @@ Authorization: Bearer <token>
 
 ---
 
-## 📱 API Mobile
+## API Mobile
 
 ### 🔐 Authentification Agent
 
@@ -93,11 +93,11 @@ POST /api/mobile/auth/login?secretCode=123456
 
 ---
 
-### 🏠 Home Mobile – Liste des adresses
+###  Home Mobile – Liste des adresses
 
 **GET** `/api/mobile/home/addresses`
 
-🔒 JWT requis (ROLE_AGENT)
+JWT requis (ROLE_AGENT)
 
 **Réponse**
 
@@ -138,7 +138,7 @@ Header: Authorization: Bearer <token>
 
  Response : liste des compteurs avec statut relevé/non relevé
 
-### 📝 Enregistrement d’un relevé
+###  Enregistrement d’un relevé
 
 **POST** `/api/mobile/readings`
 
@@ -161,9 +161,9 @@ Header: Authorization: Bearer <token>
 
 ---
 
-## 🖥️ API Backoffice
+##  API Backoffice
 
-### 🔐 Authentification
+###  Authentification
 
 **POST** `/api/auth/login`
 
@@ -176,7 +176,7 @@ Header: Authorization: Bearer <token>
 
 ---
 
-### 👤 Gestion des utilisateurs
+###  Gestion des utilisateurs
 
 | Méthode | Endpoint                       | Rôle       |
 | ------- | ------------------------------ | ---------- |
@@ -188,7 +188,7 @@ Header: Authorization: Bearer <token>
 
 ---
 
-## 🔄 Batch & Synchronisation Odoo
+##  Batch & Synchronisation Odoo
 
 ### Import Odoo (Clients / Agents)
 
@@ -247,4 +247,4 @@ mvn clean spring-boot:run
 
 ---
 
-📌 **Projet SI Relevés – Rabat Énergie & Eau**
+ **Projet SI Relevés – Rabat Énergie & Eau**
