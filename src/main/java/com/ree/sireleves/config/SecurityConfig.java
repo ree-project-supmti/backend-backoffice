@@ -22,10 +22,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Mobile
+                        .requestMatchers("/api/mobile/auth/**").permitAll()  // doit être ici !
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/mobile/**").hasRole("AGENT")
+
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_SUPERADMIN")
                         .requestMatchers("/api/users/me").authenticated()
+
+
+
+
+                        // Batch Odoo
+                        .requestMatchers("/api/batch/**").hasRole("SUPERADMIN")
+
+                        // Backoffice
+                        .requestMatchers("/api/dashboard/**").hasAnyRole("USER", "SUPERADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

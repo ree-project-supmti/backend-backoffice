@@ -19,6 +19,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(JwtService jwtService){ this.jwtService = jwtService; }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // Ignorer les endpoints de login/public
+        return path.startsWith("/api/mobile/auth") || path.startsWith("/api/auth");
+    }
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");

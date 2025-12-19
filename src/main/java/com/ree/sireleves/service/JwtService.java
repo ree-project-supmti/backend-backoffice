@@ -7,7 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import java.time.Duration;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -42,6 +42,21 @@ public class JwtService {
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + expirationMillis))
                 .signWith(key) // plus besoin de préciser HS256 (déduit depuis key)
+                .compact();
+    }
+
+    public String generateMobileToken(
+            String agentId,
+            Duration ttl
+    ) {
+        long now = System.currentTimeMillis();
+
+        return Jwts.builder()
+                .subject(agentId)
+                .claim("roles", "ROLE_AGENT")
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + ttl.toMillis()))
+                .signWith(key)
                 .compact();
     }
 

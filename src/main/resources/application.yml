@@ -13,4 +13,4 @@ jwt:
   secret: "ReplaceThisWithAStrongRandomSecretKey_AtLeast_32_Chars"
   expiration-minutes: 30
 server:
-  port: 8580
+  port: 8585
