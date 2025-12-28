@@ -17,6 +17,11 @@ public class Address {
     private Double latitude;
     private Double longitude;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+
     @Transient
     public String getFullAddress() {
         return String.join(", ",
@@ -74,5 +79,13 @@ public class Address {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 }

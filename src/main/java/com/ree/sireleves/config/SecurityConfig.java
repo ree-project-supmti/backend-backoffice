@@ -28,8 +28,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/mobile/**").hasRole("AGENT")
 
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_SUPERADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("SUPERADMIN")
                         .requestMatchers("/api/users/me").authenticated()
+                        .requestMatchers("/api/users/change-password").authenticated()
+
+
 
 
 
@@ -38,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/batch/**").hasRole("SUPERADMIN")
 
                         // Backoffice
-                        .requestMatchers("/api/dashboard/**").hasAnyRole("USER", "SUPERADMIN")
+                        .requestMatchers("/api/backoffice/**").hasAnyRole("USER", "SUPERADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

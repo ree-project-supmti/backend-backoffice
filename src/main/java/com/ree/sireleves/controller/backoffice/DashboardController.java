@@ -1,4 +1,4 @@
-package com.ree.sireleves.controller.dashboard;
+package com.ree.sireleves.controller.backoffice;
 
 import com.ree.sireleves.dto.dashboard.DashboardGlobalDTO;
 import com.ree.sireleves.service.dashboard.DashboardService;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/api/backoffice")
 public class DashboardController {
 
     private final DashboardService dashboardService;

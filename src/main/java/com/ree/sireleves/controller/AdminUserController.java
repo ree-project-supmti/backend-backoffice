@@ -26,7 +26,7 @@ public class AdminUserController {
 
     @PostMapping("/{uuid}/reset-password")
     public ResponseEntity<Void> resetPassword(@PathVariable String uuid){
-        userService.resetPasswordForUser(uuid);
+        userService.resetPasswordByAdmin(uuid);
         return ResponseEntity.noContent().build();
     }
 }

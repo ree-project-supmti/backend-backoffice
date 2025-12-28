@@ -21,21 +21,32 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Role r1 = roleRepo.findByName("ROLE_SUPERADMIN").orElseGet(()-> roleRepo.save(createRole("ROLE_SUPERADMIN")));
-        Role r2 = roleRepo.findByName("ROLE_USER").orElseGet(()-> roleRepo.save(createRole("ROLE_USER")));
-        // create default superadmin if not exists
-        if(!userRepo.existsByUsername("admin@ree.local")){
+        Role r1 = roleRepo.findByName("ROLE_SUPERADMIN").orElseGet(() -> roleRepo.save(createRole("ROLE_SUPERADMIN")));
+        Role r2 = roleRepo.findByName("ROLE_USER").orElseGet(() -> roleRepo.save(createRole("ROLE_USER")));
+
+        User superadmin = userRepo.findByUsername("admin@ree.local").orElse(null);
+        if(superadmin == null){
+            // créer superadmin
             User u = new User();
             u.setUuid(UUID.randomUUID().toString());
             u.setFirstName("Admin");
             u.setLastName("REE");
             u.setUsername("admin@ree.local");
-            u.setPasswordHash(passwordEncoder.encode("Admin123!")); // change after first login
+            u.setPasswordHash(passwordEncoder.encode("Admin123"));
             u.setMustChangePassword(true);
             u.getRoles().add(r1);
             userRepo.save(u);
             System.out.println("Created default superadmin: admin@ree.local / Admin123!");
+        } else {
+            // optionnel : reset password si nécessaire
+            if(superadmin.isMustChangePassword()){
+                superadmin.setPasswordHash(passwordEncoder.encode("Admin123"));
+                superadmin.setMustChangePassword(true);
+                userRepo.save(superadmin);
+                System.out.println("Reset password for superadmin: admin@ree.local / Admin123!");
+            }
         }
     }
+
     private Role createRole(String name){ Role r = new Role(); r.setName(name); return r; }
 }

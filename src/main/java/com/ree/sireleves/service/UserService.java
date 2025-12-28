@@ -19,11 +19,19 @@ public class UserService {
     private final UserRepository userRepo;
     private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
-    public UserService(UserRepository userRepo, RoleRepository roleRepo, PasswordEncoder passwordEncoder){
+
+    public UserService(
+            UserRepository userRepo,
+            RoleRepository roleRepo,
+            PasswordEncoder passwordEncoder,
+            MailService mailService
+    ) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.passwordEncoder = passwordEncoder;
+        this.mailService = mailService;
     }
 
     @Transactional
@@ -66,6 +74,35 @@ public class UserService {
         u.setMustChangePassword(true);
         userRepo.save(u);
         // send mail with randomPwd (omitted). Log for dev.
+    }
+
+    @Transactional
+    public void resetPasswordByAdmin(String uuid) {
+        User user = userRepo.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        String newPassword = generateRandomPassword(10);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(true);
+
+        userRepo.save(user);
+
+        mailService.sendPasswordResetMail(
+                user.getUsername(),
+                newPassword,
+                true
+        );
+    }
+
+    @Transactional
+    public void resetOwnPassword(String uuid, String newPassword) {
+        User user = userRepo.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
+
+        userRepo.save(user);
     }
 
     private UserResponseDTO mapToDto(User u){

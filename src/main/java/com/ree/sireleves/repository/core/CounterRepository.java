@@ -41,4 +41,14 @@ public interface CounterRepository extends JpaRepository<Counter, Long> {
 
     int countByAddress(Address address);
 
+    long countByAddress_Id(Long addressId);
+
+    boolean existsByAddress_IdAndType(Long addressId, CounterType type);
+
+    @Query("""
+        select max(c.serialNumber)
+        from Counter c
+    """)
+    String findMaxSerialNumber();
+
 }
