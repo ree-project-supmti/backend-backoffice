@@ -64,4 +64,25 @@ public interface ReadingRepository extends JpaRepository<Reading, Long> {
 """)
     boolean existsValidatedReading(Long counterId);
 
+    @Query("""
+    select r from Reading r
+    where r.counter.id = :counterId
+    order by r.readingDate desc
+    limit 1
+""")
+    Optional<Reading> findLastReadingByCounter(@Param("counterId") Long counterId);
+
+    @Query("""
+    select r.counter.id from Reading r
+    where r.counter.address.district = :district
+      and r.readingDate >= :monthStart
+      and r.readingDate <= :monthEnd
+      and r.status = com.ree.sireleves.model.enums.ReadingStatus.VALIDATED
+""")
+    List<Long> findCounterIdsReadInPeriod(
+            @Param("district") String district,
+            @Param("monthStart") Instant monthStart,
+            @Param("monthEnd") Instant monthEnd
+    );
+
 }
