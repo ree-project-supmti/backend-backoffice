@@ -5,6 +5,7 @@ import com.ree.sireleves.repository.AgentRepository;
 import com.ree.sireleves.service.JwtService;
 import jakarta.security.auth.message.AuthException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 
@@ -42,5 +43,26 @@ public class MobileAuthService {
                 MOBILE_JWT_TTL
         );
 
+    }
+
+    @Transactional
+    public void changeSecretCode(Long agentId, String oldSecretCode, String newSecretCode) throws AuthException {
+        // Retrieve the agent
+        Agent agent = agentRepository.findById(agentId)
+                .orElseThrow(() -> new AuthException("Agent not found"));
+
+        // Validate old secret code matches current
+        if (!agent.getSecretCode().equals(oldSecretCode)) {
+            throw new AuthException("Old secret code is incorrect");
+        }
+
+        // Validate new secret code is 6 digits
+        if (!newSecretCode.matches("\\d{6}")) {
+            throw new AuthException("New secret code must be exactly 6 digits");
+        }
+
+        // Update agent's secret code
+        agent.setSecretCode(newSecretCode);
+        agentRepository.save(agent);
     }
 }
