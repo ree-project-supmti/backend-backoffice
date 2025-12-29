@@ -1,6 +1,5 @@
 package com.ree.sireleves.model;
 
-import com.ree.sireleves.model.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -94,6 +93,14 @@ public class Agent {
     public void setUser(User user) {
         this.user = user;
     }*/
+
+    public String getSecretCode() {
+        return secretCode;
+    }
+
+    public void setSecretCode(String secretCode) {
+        this.secretCode = secretCode;
+    }
 
     public Boolean getActive() {
         return active;
