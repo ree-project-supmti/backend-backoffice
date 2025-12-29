@@ -85,4 +85,14 @@ public interface ReadingRepository extends JpaRepository<Reading, Long> {
             @Param("monthEnd") Instant monthEnd
     );
 
+    @Query("""
+    select r from Reading r
+    where r.counter.id = :counterId
+    order by r.readingDate desc
+""")
+    List<Reading> findLast12Readings(
+            @Param("counterId") Long counterId,
+            org.springframework.data.domain.Pageable pageable
+    );
+
 }
