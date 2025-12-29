@@ -10,7 +10,6 @@ import com.ree.sireleves.model.core.Counter;
 import com.ree.sireleves.repository.AgentRepository;
 import com.ree.sireleves.repository.ReadingRepository;
 import com.ree.sireleves.repository.core.CounterRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -39,7 +38,7 @@ public class MobileTourService {
 
     public List<Counter> getTourneeForAgent(Long agentId) {
         Agent agent = agentRepository.findById(agentId)
-                .orElseThrow(() -> new EntityNotFoundException("Agent not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
 
         return counterRepository.findActiveCountersByDistrict(agent.getDistrict());
     }
@@ -47,7 +46,7 @@ public class MobileTourService {
     public MobileTourDownloadDTO downloadTour(Long agentId) {
         // Retrieve agent
         Agent agent = agentRepository.findById(agentId)
-                .orElseThrow(() -> new EntityNotFoundException("Agent not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
 
         // Retrieve all active counters in agent's district
         List<Counter> allCounters = counterRepository.findActiveCountersByDistrict(agent.getDistrict());

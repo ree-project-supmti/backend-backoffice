@@ -49,16 +49,16 @@ public class MobileAuthService {
     public void changeSecretCode(Long agentId, String oldSecretCode, String newSecretCode) throws AuthException {
         // Retrieve the agent
         Agent agent = agentRepository.findById(agentId)
-                .orElseThrow(() -> new AuthException("Agent not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
 
         // Validate old secret code matches current
         if (!agent.getSecretCode().equals(oldSecretCode)) {
-            throw new AuthException("Old secret code is incorrect");
+            throw new IllegalArgumentException("Old secret code is incorrect");
         }
 
         // Validate new secret code is 6 digits
         if (!newSecretCode.matches("\\d{6}")) {
-            throw new AuthException("New secret code must be exactly 6 digits");
+            throw new IllegalArgumentException("New secret code must be exactly 6 digits");
         }
 
         // Update agent's secret code
