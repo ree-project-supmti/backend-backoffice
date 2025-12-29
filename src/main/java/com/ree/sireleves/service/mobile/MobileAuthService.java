@@ -51,7 +51,7 @@ public class MobileAuthService {
     public void changeSecretCode(Long agentId, String oldSecretCode, String newSecretCode) throws AuthException {
         // Retrieve the agent
         Agent agent = agentRepository.findById(agentId)
-                .orElseThrow(() -> new AuthException("Agent not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
 
         // Validate old secret code matches current (compare hashed)
         if (!passwordEncoder.matches(oldSecretCode, agent.getSecretCode())) {
@@ -60,7 +60,7 @@ public class MobileAuthService {
 
         // Validate new secret code is 6 digits
         if (!newSecretCode.matches("\\d{6}")) {
-            throw new AuthException("New secret code must be exactly 6 digits");
+            throw new IllegalArgumentException("New secret code must be exactly 6 digits");
         }
 
         // Hash and update agent's secret code

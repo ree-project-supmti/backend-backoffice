@@ -3,6 +3,9 @@ package com.ree.sireleves.service.mobile;
 import com.ree.sireleves.dto.mobile.MobileBatchReadingResponseDTO;
 import com.ree.sireleves.dto.mobile.MobileReadingRequestDTO;
 import com.ree.sireleves.dto.mobile.ReadingErrorDTO;
+import com.ree.sireleves.exception.CounterNotFoundException;
+import com.ree.sireleves.exception.InvalidReadingException;
+import com.ree.sireleves.exception.UnauthorizedDistrictAccessException;
 import com.ree.sireleves.model.Agent;
 import com.ree.sireleves.model.Reading;
 import com.ree.sireleves.model.core.Counter;
@@ -40,7 +43,7 @@ public class MobileReadingService {
 
         readingRepository.findByMobileUuid(reading.getMobileUuid())
                 .ifPresent(existing -> {
-                    throw new IllegalStateException("Duplicate mobileUuid");
+                    throw InvalidReadingException.duplicateReading(reading.getMobileUuid());
                 });
 
         reading.setStatus(ReadingStatus.PENDING);
@@ -96,20 +99,23 @@ public class MobileReadingService {
         // Check for duplicate mobile UUID
         Optional<Reading> existingReading = readingRepository.findByMobileUuid(request.mobileUuid());
         if (existingReading.isPresent()) {
-            throw new IllegalArgumentException("Duplicate mobile UUID: " + request.mobileUuid());
+            throw InvalidReadingException.duplicateReading(request.mobileUuid());
         }
 
         // Validate counter exists and is active
         Counter counter = counterRepository.findById(request.counterId())
-                .orElseThrow(() -> new IllegalArgumentException("Counter not found: " + request.counterId()));
+                .orElseThrow(() -> new CounterNotFoundException(request.counterId()));
 
         if (!Boolean.TRUE.equals(counter.getActive())) {
-            throw new IllegalArgumentException("Counter is not active: " + request.counterId());
+            throw InvalidReadingException.inactiveCounter(request.counterId());
         }
 
         // Validate counter is in agent's district
         if (counter.getAddress() == null || !agent.getDistrict().equals(counter.getAddress().getDistrict())) {
-            throw new IllegalArgumentException("Counter is not in agent's district: " + request.counterId());
+            throw new UnauthorizedDistrictAccessException(
+                    agent.getDistrict(),
+                    counter.getAddress() != null ? counter.getAddress().getDistrict() : "unknown"
+            );
         }
 
         // Validate new index >= old index
@@ -117,9 +123,7 @@ public class MobileReadingService {
         if (lastReading.isPresent()) {
             Integer previousIndex = lastReading.get().getValue();
             if (request.value() < previousIndex) {
-                throw new IllegalArgumentException(
-                        "New index (" + request.value() + ") must be greater than or equal to previous index (" + previousIndex + ")"
-                );
+                throw InvalidReadingException.invalidIndex(request.value(), previousIndex);
             }
         }
     }
@@ -129,7 +133,7 @@ public class MobileReadingService {
         
         // Set counter
         Counter counter = counterRepository.findById(request.counterId())
-                .orElseThrow(() -> new IllegalArgumentException("Counter not found"));
+                .orElseThrow(() -> new CounterNotFoundException(request.counterId()));
         reading.setCounter(counter);
         
         // Set agent

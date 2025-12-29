@@ -1,15 +1,15 @@
 package com.ree.sireleves.service.mobile;
 
 import com.ree.sireleves.dto.mobile.MobileReadingHistoryDTO;
+import com.ree.sireleves.exception.CounterNotFoundException;
+import com.ree.sireleves.exception.UnauthorizedDistrictAccessException;
 import com.ree.sireleves.model.Reading;
 import com.ree.sireleves.model.core.Counter;
 import com.ree.sireleves.repository.AgentRepository;
 import com.ree.sireleves.repository.ReadingRepository;
 import com.ree.sireleves.repository.core.CounterRepository;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,22 +39,16 @@ public class MobileCounterService {
     public List<MobileReadingHistoryDTO> getReadingHistory(Long counterId, Long agentId) {
         // Validate counter exists
         Counter counter = counterRepository.findById(counterId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Counter not found"
-                ));
+                .orElseThrow(() -> new CounterNotFoundException(counterId));
 
         // Validate agent has access to counter's district
         var agent = agentRepository.findById(agentId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Agent not found"
-                ));
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
 
         if (!counter.getAddress().getDistrict().equals(agent.getDistrict())) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Agent does not have access to this counter's district"
+            throw new UnauthorizedDistrictAccessException(
+                    agent.getDistrict(),
+                    counter.getAddress().getDistrict()
             );
         }
 
