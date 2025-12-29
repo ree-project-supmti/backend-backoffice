@@ -4,6 +4,7 @@ import com.ree.sireleves.model.Agent;
 import com.ree.sireleves.repository.AgentRepository;
 import com.ree.sireleves.service.JwtService;
 import jakarta.security.auth.message.AuthException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +17,16 @@ public class MobileAuthService {
 
     private final AgentRepository agentRepository;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     public MobileAuthService(
             AgentRepository agentRepository,
-            JwtService jwtService
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder
     ) {
         this.agentRepository = agentRepository;
         this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String authenticate(String secretCode) throws AuthException {
@@ -31,12 +35,10 @@ public class MobileAuthService {
             throw new AuthException("Invalid secret code format");
         }
 
-        Agent agent = agentRepository.findBySecretCode(secretCode)
+        Agent agent = agentRepository.findByActiveTrue().stream()
+                .filter(a -> passwordEncoder.matches(secretCode, a.getSecretCode()))
+                .findFirst()
                 .orElseThrow(() -> new AuthException("Invalid secret code"));
-
-        if (!agent.getActive()) {
-            throw new AuthException("Agent disabled");
-        }
 
         return jwtService.generateMobileToken(
                 agent.getId().toString(),
@@ -51,9 +53,9 @@ public class MobileAuthService {
         Agent agent = agentRepository.findById(agentId)
                 .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
 
-        // Validate old secret code matches current
-        if (!agent.getSecretCode().equals(oldSecretCode)) {
-            throw new IllegalArgumentException("Old secret code is incorrect");
+        // Validate old secret code matches current (compare hashed)
+        if (!passwordEncoder.matches(oldSecretCode, agent.getSecretCode())) {
+            throw new AuthException("Old secret code is incorrect");
         }
 
         // Validate new secret code is 6 digits
@@ -61,8 +63,9 @@ public class MobileAuthService {
             throw new IllegalArgumentException("New secret code must be exactly 6 digits");
         }
 
-        // Update agent's secret code
-        agent.setSecretCode(newSecretCode);
+        // Hash and update agent's secret code
+        String hashedSecretCode = passwordEncoder.encode(newSecretCode);
+        agent.setSecretCode(hashedSecretCode);
         agentRepository.save(agent);
     }
 }
