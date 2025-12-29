@@ -1,5 +1,6 @@
 package com.ree.sireleves.controller.mobile;
 
+import com.ree.sireleves.dto.mobile.MobileBatchReadingResponseDTO;
 import com.ree.sireleves.dto.mobile.MobileReadingRequestDTO;
 import com.ree.sireleves.dto.mobile.MobileTourDownloadDTO;
 import com.ree.sireleves.model.Reading;
@@ -62,5 +63,16 @@ public class MobileController {
         reading.setLatitude(dto.latitude());
         reading.setLongitude(dto.longitude());
         return readingService.submitReading(reading);
+    }
+
+    @PostMapping("/readings/batch")
+    public MobileBatchReadingResponseDTO submitBatchReadings(
+            @RequestBody List<MobileReadingRequestDTO> readings,
+            Authentication authentication
+    ) {
+        // Extract agent ID from authentication token
+        Long authenticatedAgentId = Long.parseLong(authentication.getName());
+        
+        return readingService.submitBatchReadings(readings, authenticatedAgentId);
     }
 }
