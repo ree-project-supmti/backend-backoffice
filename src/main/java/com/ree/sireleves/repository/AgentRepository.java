@@ -13,6 +13,8 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
    // Optional<Agent> findByUserId(Long userId);
 
     List<Agent> findByDistrictAndActiveTrue(String district);
+    
+    List<Agent> findByActiveTrue();
 
     boolean existsByOdooId(Long odooId);
     Optional<Agent> findBySecretCode(String secretCode);

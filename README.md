@@ -12,58 +12,200 @@ Le système joue le rôle de **HUB CENTRAL** assurant :
 
 ---
 
-##  Architecture générale
+📘 API Documentation – SI Relevés (Backoffice & Users)
+🌐 Base URL
+http://localhost:8585
 
-```
-si-releves
-├── controller
-│   ├── auth
-│   ├── mobile
-│   ├── backoffice
-│   └── batch
-├── service
-│   ├── security
-│   ├── mobile
-│   ├── dashboard
-│   └── batch
-├── repository
-│   ├── core
-│   └── security
-├── model
-│   ├── core
-│   └── security
-├── dto
-├── security
-└── config
-```
 
----
+Toutes les routes (sauf auth) nécessitent un JWT Token.
 
-## 🔐 Sécurité & Authentification
+🔐 Authentification
+➤ Login (Backoffice / Admin)
+POST /api/auth/login
 
-### JWT
 
-* Authentification via **JWT (HS256)**
-* Header requis :
+Body
 
-```
-Authorization: Bearer <token>
-```
+{
+  "username": "user1",
+  "password": "password"
+}
 
-### Rôles
 
-| Rôle            | Description             |
-| --------------- | ----------------------- |
-| ROLE_SUPERADMIN | Administration complète |
-| ROLE_USER       | Utilisateur backoffice  |
-| ROLE_AGENT      | Agent terrain (mobile)  |
+Response
 
-### Durée des tokens
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 
-* Backoffice : configurable
-* Mobile : **10 minutes (inactivité)**
 
----
+➡️ Le token doit être envoyé dans le header :
+
+Authorization: Bearer <JWT>
+
+👤 Utilisateurs (Backoffice)
+➤ Informations utilisateur connecté
+GET /api/users/me
+
+
+Headers
+
+Authorization: Bearer <JWT>
+
+
+Response
+
+{
+  "uuid": "d6f4c1a9-...",
+  "firstName": "Ali",
+  "lastName": "Ben Salah",
+  "username": "ali.user",
+  "enabled": true,
+  "mustChangePassword": true,
+  "createdAt": "2025-01-10T12:00:00"
+}
+
+➤ Changer son mot de passe
+POST /api/users/change-password
+
+
+Roles : USER, SUPERADMIN
+
+Body
+
+{
+  "newPassword": "NewPassword123!"
+}
+
+
+Response
+
+204 No Content
+
+➤ Reset mot de passe (Admin / Superadmin)
+POST /api/admin/users/{uuid}/reset-password
+
+
+➡️ Génère un nouveau mot de passe aléatoire
+➡️ L’utilisateur devra le changer à la prochaine connexion
+
+⚙️ Gestion des Compteurs (Backoffice)
+
+Base path
+
+/api/backoffice/counters
+
+
+Rôle requis : USER
+
+➤ Créer un compteur
+POST /api/backoffice/counters
+
+
+Body
+
+{
+  "addressId": 1,
+  "type": "WATER"
+}
+
+
+Règles métier
+
+SerialNumber auto-généré (9 chiffres : 000000001)
+
+1 compteur par type (WATER / ELECTRICITY)
+
+Max 2 compteurs par adresse (sauf immeuble)
+
+Adresse doit avoir un client
+
+Response
+
+{
+  "id": 5,
+  "serialNumber": "000000005",
+  "type": "WATER",
+  "active": true,
+  "odooId": null,
+  "client": { "id": 1 },
+  "address": { "id": 1 }
+}
+
+➤ Liste des compteurs
+GET /api/backoffice/counters
+
+
+Response
+
+[
+  {
+    "id": 1,
+    "serialNumber": "000000001",
+    "type": "WATER",
+    "active": true
+  },
+  {
+    "id": 2,
+    "serialNumber": "000000002",
+    "type": "ELECTRICITY",
+    "active": true
+  }
+]
+
+➤ Détail d’un compteur
+GET /api/backoffice/counters/{id}
+
+
+Response
+
+{
+  "id": 1,
+  "serialNumber": "000000001",
+  "type": "WATER",
+  "active": true
+}
+
+➤ Modifier un compteur (activation / désactivation)
+PUT /api/backoffice/counters/{id}
+
+
+Body
+
+{
+  "active": false
+}
+
+
+Response
+
+{
+  "id": 1,
+  "serialNumber": "000000001",
+  "active": false
+}
+
+➤ Supprimer un compteur (soft delete)
+DELETE /api/backoffice/counters/{id}
+
+
+➡️ Le compteur n’est pas supprimé physiquement
+➡️ active = false
+
+Response
+
+204 No Content
+
+📱 APIs Mobile (Agent)
+➤ Login Mobile
+POST /api/mobile/auth/login
+
+➤ Home Mobile (Adresses + Relevé / Non relevé)
+GET /api/mobile/home
+
+
+➡️ Retourne la liste des adresses affectées à l’agent
+➡️ Statut relevé / non relevé
 
 ## API Mobile
 

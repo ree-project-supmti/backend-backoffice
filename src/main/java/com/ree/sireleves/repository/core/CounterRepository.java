@@ -5,6 +5,7 @@ import com.ree.sireleves.model.core.Counter;
 import com.ree.sireleves.model.enums.CounterType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,5 +51,18 @@ public interface CounterRepository extends JpaRepository<Counter, Long> {
         from Counter c
     """)
     String findMaxSerialNumber();
+
+    @Query("""
+        SELECT c FROM Counter c
+        JOIN c.address a
+        WHERE a.district = :district
+        AND (LOWER(c.serialNumber) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR LOWER(a.street) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR LOWER(a.city) LIKE LOWER(CONCAT('%', :query, '%')))
+    """)
+    List<Counter> searchInDistrict(
+            @Param("district") String district,
+            @Param("query") String query
+    );
 
 }

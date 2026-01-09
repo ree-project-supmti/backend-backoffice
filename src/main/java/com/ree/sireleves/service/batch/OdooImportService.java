@@ -7,6 +7,7 @@ import com.ree.sireleves.repository.AgentRepository;
 import com.ree.sireleves.repository.core.ClientRepository;
 import com.ree.sireleves.repository.core.CounterRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +18,18 @@ public class OdooImportService {
     private final ClientRepository clientRepository;
     private final AgentRepository agentRepository;
     private final CounterRepository counterRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public OdooImportService(
             ClientRepository clientRepository,
             AgentRepository agentRepository,
-            CounterRepository counterRepository
+            CounterRepository counterRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.clientRepository = clientRepository;
         this.agentRepository = agentRepository;
         this.counterRepository = counterRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -52,7 +56,13 @@ public class OdooImportService {
                                 existing.setDistrict(agent.getDistrict());
                                 existing.setActive(agent.getActive());
                             },
-                            () -> agentRepository.save(agent)
+                            () -> {
+                                // Hash the secret code before saving new agent
+                                if (agent.getSecretCode() != null) {
+                                    agent.setSecretCode(passwordEncoder.encode(agent.getSecretCode()));
+                                }
+                                agentRepository.save(agent);
+                            }
                     );
         }
     }

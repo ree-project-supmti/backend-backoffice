@@ -10,9 +10,15 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private Long odooId;
+
     private String street;
     private String city;
     private String district; // quartier (clé métier pour affectation agents)
+    private String buildingName;
+    private String apartmentNumber;
+    private String postalCode;
 
     private Double latitude;
     private Double longitude;
@@ -23,14 +29,59 @@ public class Address {
 
 
     @Transient
+    private String fullAddress;
+
+    @Transient
     public String getFullAddress() {
+        if (fullAddress != null) {
+            return fullAddress;
+        }
         return String.join(", ",
+                buildingName != null ? buildingName : "",
+                apartmentNumber != null ? "Apt " + apartmentNumber : "",
                 street != null ? street : "",
+                district != null ? district : "",
                 city != null ? city : ""
-        ).replaceAll(", $", "");
+        ).replaceAll("^, |, $|, , ", ", ").replaceAll("^, |, $", "");
+    }
+
+    public void setFullAddress(String fullAddress) {
+        this.fullAddress = fullAddress;
     }
 
     // getters/setters
+
+    public Long getOdooId() {
+        return odooId;
+    }
+
+    public void setOdooId(Long odooId) {
+        this.odooId = odooId;
+    }
+
+    public String getBuildingName() {
+        return buildingName;
+    }
+
+    public void setBuildingName(String buildingName) {
+        this.buildingName = buildingName;
+    }
+
+    public String getApartmentNumber() {
+        return apartmentNumber;
+    }
+
+    public void setApartmentNumber(String apartmentNumber) {
+        this.apartmentNumber = apartmentNumber;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
 
 
     public Long getId() {

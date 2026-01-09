@@ -2,6 +2,7 @@ package com.ree.sireleves.model.core;
 
 import com.ree.sireleves.model.enums.CounterType;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -36,6 +37,9 @@ public class Counter {
     private Address address;
 
     private Boolean active = true;
+
+    private Double currentIndex;
+    private LocalDateTime lastReadingDate;
 
     // getters/setters
 
@@ -94,5 +98,21 @@ public class Counter {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Double getCurrentIndex() {
+        return currentIndex;
+    }
+
+    public void setCurrentIndex(Double currentIndex) {
+        this.currentIndex = currentIndex;
+    }
+
+    public LocalDateTime getLastReadingDate() {
+        return lastReadingDate;
+    }
+
+    public void setLastReadingDate(LocalDateTime lastReadingDate) {
+        this.lastReadingDate = lastReadingDate;
     }
 }
