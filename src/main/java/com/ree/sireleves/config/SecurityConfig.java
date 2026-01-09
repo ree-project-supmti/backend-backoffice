@@ -26,6 +26,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Health endpoints (public)
                         .requestMatchers("/api/health", "/api/mobile/health").permitAll()
+                        // Data seeding endpoints (public for development)
+                        .requestMatchers("/api/seed-test-data", "/api/clear-test-data").permitAll()
                         
                         // Mobile
                         .requestMatchers("/api/mobile/auth/**").permitAll()  // doit être ici !
