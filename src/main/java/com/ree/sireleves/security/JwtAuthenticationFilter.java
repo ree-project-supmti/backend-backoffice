@@ -34,12 +34,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = jwtService.parseToken(token).getBody();
                 String uuid = claims.getSubject();
                 String roles = claims.get("roles", String.class);
+                
+                // Check if this is a mobile agent token (has ROLE_AGENT)
+                boolean isMobileAgent = roles != null && roles.contains("ROLE_AGENT");
+                
                 var authorities = Arrays.stream(roles.split(","))
                         .filter(s->!s.isBlank())
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
                 var auth = new UsernamePasswordAuthenticationToken(uuid, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
+                
+                // For mobile agent tokens, refresh the token on each API call (activity-based expiration)
+                if (isMobileAgent) {
+                    String refreshedToken = jwtService.refreshMobileToken(uuid);
+                    response.setHeader("X-Refreshed-Token", refreshedToken);
+                }
+                
             } catch (Exception ex){
                 // invalid token -> clear context, but let Spring handle unauthorized later
                 SecurityContextHolder.clearContext();

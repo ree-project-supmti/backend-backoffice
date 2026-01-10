@@ -47,23 +47,23 @@ public class DataSeedingService {
 
     @Transactional
     public void seedTestData() {
-        System.out.println("🌱 Starting production-like data seeding...");
+        System.out.println("🌱 Starting optimized data seeding...");
 
         // Clear existing data
         clearTestData();
 
-        // Create larger dataset
-        List<Client> clients = createProductionClients();
-        List<Address> addresses = createProductionAddresses(clients);
-        List<Counter> counters = createProductionCounters(addresses);
-        createProductionReadings(counters);
+        // Create smaller, optimized dataset for faster seeding
+        List<Client> clients = createClients();
+        List<Address> addresses = createAddresses(clients);
+        List<Counter> counters = createCounters(addresses);
+        createReadings(counters);
 
-        System.out.println("✅ Production-like data seeding completed!");
+        System.out.println("✅  Data seeding completed!");
         System.out.println("📊 Created:");
         System.out.println("   - " + clients.size() + " clients");
         System.out.println("   - " + addresses.size() + " addresses");
         System.out.println("   - " + counters.size() + " counters");
-        System.out.println("   - Historical readings for testing");
+        System.out.println("   - Sample readings for testing");
     }
 
     private void clearTestData() {
@@ -73,126 +73,7 @@ public class DataSeedingService {
         clientRepository.deleteAll();
         System.out.println("🗑️ Cleared existing test data from MySQL");
     }
-
-    private List<Client> createClients() {
-        List<Client> clients = new ArrayList<>();
-        
-        String[] firstNames = {
-            "Mohammed", "Fatima", "Ahmed", "Khadija", "Hassan",
-            "Aicha", "Youssef", "Zineb", "Omar", "Salma",
-            "Karim", "Nadia", "Rachid", "Samira", "Mehdi",
-            "Laila", "Amine", "Houda", "Samir", "Malika"
-        };
-        
-        String[] lastNames = {
-            "Alami", "Benali", "Idrissi", "Fassi", "Tazi",
-            "Benjelloun", "Chraibi", "Kettani", "Lahlou", "Mekouar",
-            "Naciri", "Ouazzani", "Sefrioui", "Tounsi", "Zniber"
-        };
-
-        for (int i = 1; i <= 25; i++) {
-            Client client = new Client();
-            client.setOdooId((long) i);
-            client.setName(firstNames[random.nextInt(firstNames.length)] + " " + lastNames[random.nextInt(lastNames.length)]);
-            client.setPhone("+212 6" + String.format("%02d", random.nextInt(100)) + 
-                           String.format("%02d", random.nextInt(100)) + 
-                           String.format("%02d", random.nextInt(100)));
-            
-            clients.add(clientRepository.save(client));
-        }
-        
-        return clients;
-    }
-
-    private List<Address> createAddresses(List<Client> clients) {
-        List<Address> addresses = new ArrayList<>();
-        
-        String[] buildings = {
-            "Résidence Al Amal", "Immeuble Yasmine", "Résidence Les Jardins",
-            "Immeuble Riad", "Résidence Palmier", "Immeuble Souissi",
-            "Résidence Océan", "Immeuble Hassan", "Résidence Agdal", "Immeuble Hay Riad"
-        };
-        
-        String[] streets = {
-            "Avenue Mohammed V", "Rue Patrice Lumumba", "Avenue Allal Ben Abdellah",
-            "Rue Oued Fès", "Avenue Hassan II", "Rue Abou Faris Al Marini",
-            "Avenue Al Marsa", "Rue Tanger", "Avenue Annakhil", "Rue Meknès"
-        };
-
-        for (int i = 0; i < clients.size(); i++) {
-            Client client = clients.get(i);
-            String building = buildings[i % buildings.length];
-            String street = streets[i % streets.length];
-            String district = i < 12 ? "Agdal" : "Hay Riad";
-            
-            Address address = new Address();
-            address.setOdooId((long) (i + 1));
-            address.setClient(client);
-            address.setBuildingName(building);
-            address.setApartmentNumber(String.valueOf((i % 5) + 1) + String.valueOf((i / 5) + 1));
-            address.setStreet(street);
-            address.setDistrict(district);
-            address.setPostalCode("10" + String.format("%03d", 100 + i));
-            address.setCity("Rabat");
-            address.setFullAddress(building + ", Apt " + address.getApartmentNumber() + 
-                                 ", " + street + ", " + district + ", Rabat");
-            
-            addresses.add(addressRepository.save(address));
-        }
-        
-        return addresses;
-    }
-
-    private List<Counter> createCounters(List<Address> addresses) {
-        List<Counter> counters = new ArrayList<>();
-        
-        for (Address address : addresses) {
-            // Create water counter for each address
-            Counter waterCounter = new Counter();
-            waterCounter.setOdooId((long) (counters.size() + 1));
-            waterCounter.setAddress(address);
-            waterCounter.setType(CounterType.WATER);
-            waterCounter.setCurrentIndex(1000.0 + random.nextDouble() * 5000);
-            waterCounter.setLastReadingDate(LocalDateTime.now().minusDays(random.nextInt(60)));
-            counters.add(counterRepository.save(waterCounter));
-            
-            // Create electricity counter for 80% of addresses
-            if (random.nextDouble() < 0.8) {
-                Counter elecCounter = new Counter();
-                elecCounter.setOdooId((long) (counters.size() + 1));
-                elecCounter.setAddress(address);
-                elecCounter.setType(CounterType.ELECTRICITY);
-                elecCounter.setCurrentIndex(5000.0 + random.nextDouble() * 20000);
-                elecCounter.setLastReadingDate(LocalDateTime.now().minusDays(random.nextInt(60)));
-                counters.add(counterRepository.save(elecCounter));
-            }
-        }
-        
-        return counters;
-    }
-
-    private void createReadings(List<Counter> counters) {
-        // Create readings for 30% of counters
-        int readingsToCreate = (int) (counters.size() * 0.3);
-        
-        for (int i = 0; i < readingsToCreate; i++) {
-            Counter counter = counters.get(i);
-            
-            Reading reading = new Reading();
-            reading.setCounter(counter);
-            reading.setAgent(agentRepository.findByOdooId(1L).orElse(null)); // Test agent
-            reading.setValue((int) (counter.getCurrentIndex() + 
-                           (counter.getType() == CounterType.WATER ? 
-                            random.nextDouble() * 20 + 5 : 
-                            random.nextDouble() * 200 + 50)));
-            reading.setReadingDate(LocalDateTime.now().minusDays(random.nextInt(30)).atZone(ZoneId.systemDefault()).toInstant());
-            reading.setStatus(random.nextBoolean() ? ReadingStatus.VALIDATED : ReadingStatus.PENDING);
-            reading.setMobileUuid("MOBILE_" + System.currentTimeMillis() + "_" + i);
-            
-            readingRepository.save(reading);
-        }
-    }
-
+    
     public void clearAllData() {
         readingRepository.deleteAll();
         counterRepository.deleteAll();
@@ -201,60 +82,50 @@ public class DataSeedingService {
         System.out.println("🗑️ Cleared all data from MySQL database");
     }
 
-    private List<Client> createProductionClients() {
+    private List<Client> createClients() {
         List<Client> clients = new ArrayList<>();
         
         String[] firstNames = {
             "Mohammed", "Fatima", "Ahmed", "Khadija", "Hassan", "Aicha", "Youssef", "Zineb", 
-            "Omar", "Salma", "Karim", "Nadia", "Rachid", "Samira", "Mehdi", "Laila", 
-            "Amine", "Houda", "Samir", "Malika", "Abdelkader", "Latifa", "Mustapha", "Zahra",
-            "Driss", "Amina", "Khalid", "Souad", "Brahim", "Naima", "Aziz", "Hafida",
-            "Said", "Jamila", "Abderrahim", "Kenza", "Tarik", "Siham", "Noureddine", "Rajae"
+            "Omar", "Salma", "Karim", "Nadia", "Rachid", "Samira", "Mehdi", "Laila"
         };
         
         String[] lastNames = {
             "Alami", "Benali", "Idrissi", "Fassi", "Tazi", "Benjelloun", "Chraibi", "Kettani", 
-            "Lahlou", "Mekouar", "Naciri", "Ouazzani", "Sefrioui", "Tounsi", "Zniber",
-            "Berrada", "Cherkaoui", "Filali", "Ghazi", "Hajji", "Ismaili", "Jazouli",
-            "Kabbaj", "Lamrani", "Maârouf", "Nejjar", "Oufkir", "Qadiri", "Raissouni"
+            "Lahlou", "Mekouar", "Naciri", "Ouazzani", "Sefrioui", "Tounsi", "Zniber", "Berrada"
         };
 
-        for (int i = 1; i <= 150; i++) {
+        for (int i = 1; i <= 30; i++) {
             Client client = new Client();
             client.setOdooId((long) i);
-            client.setName(firstNames[random.nextInt(firstNames.length)] + " " + lastNames[random.nextInt(lastNames.length)]);
+            client.setName(firstNames[i % firstNames.length] + " " + lastNames[i % lastNames.length]);
             client.setPhone("+212 " + (random.nextBoolean() ? "6" : "5") + 
                            String.format("%02d", random.nextInt(100)) + 
                            String.format("%02d", random.nextInt(100)) + 
                            String.format("%02d", random.nextInt(100)));
             client.setCin(String.format("A%06d", random.nextInt(999999)));
             
-            clients.add(clientRepository.save(client));
+            clients.add(client);
         }
         
-        return clients;
+        // Batch save all clients at once
+        return clientRepository.saveAll(clients);
     }
 
-    private List<Address> createProductionAddresses(List<Client> clients) {
+    private List<Address> createAddresses(List<Client> clients) {
         List<Address> addresses = new ArrayList<>();
         
         String[] buildings = {
             "Résidence Al Amal", "Immeuble Yasmine", "Résidence Les Jardins", "Immeuble Riad",
-            "Résidence Palmier", "Immeuble Souissi", "Résidence Océan", "Immeuble Hassan",
-            "Résidence Agdal", "Immeuble Hay Riad", "Résidence Atlas", "Immeuble Anfa",
-            "Résidence Majorelle", "Immeuble Gueliz", "Résidence Menara", "Immeuble Hivernage",
-            "Résidence Palmeraie", "Immeuble Maarif", "Résidence Racine", "Immeuble Gauthier"
+            "Résidence Palmier", "Immeuble Souissi", "Résidence Océan", "Immeuble Hassan"
         };
         
         String[] streets = {
             "Avenue Mohammed V", "Rue Patrice Lumumba", "Avenue Allal Ben Abdellah", "Rue Oued Fès",
-            "Avenue Hassan II", "Rue Abou Faris Al Marini", "Avenue Al Marsa", "Rue Tanger",
-            "Avenue Annakhil", "Rue Meknès", "Boulevard Zerktouni", "Rue Ibn Sina", "Avenue Yacoub Al Mansour",
-            "Rue Al Jazair", "Boulevard Mohammed VI", "Avenue Prince Héritier", "Rue Moulay Ismail",
-            "Avenue des FAR", "Rue Abderrahmane Sahraoui", "Boulevard Al Massira"
+            "Avenue Hassan II", "Rue Abou Faris Al Marini", "Avenue Al Marsa", "Rue Tanger"
         };
 
-        String[] districts = {"Agdal", "Hay Riad", "Souissi", "Hassan", "Yacoub Al Mansour", "Takaddoum"};
+        String[] districts = {"Agdal", "Hay Riad", "Souissi", "Hassan"};
 
         for (int i = 0; i < clients.size(); i++) {
             Client client = clients.get(i);
@@ -278,13 +149,14 @@ public class DataSeedingService {
             address.setLatitude(33.9716 + (random.nextDouble() - 0.5) * 0.1);
             address.setLongitude(-6.8498 + (random.nextDouble() - 0.5) * 0.1);
             
-            addresses.add(addressRepository.save(address));
+            addresses.add(address);
         }
         
-        return addresses;
+        // Batch save all addresses at once
+        return addressRepository.saveAll(addresses);
     }
 
-    private List<Counter> createProductionCounters(List<Address> addresses) {
+    private List<Counter> createCounters(List<Address> addresses) {
         List<Counter> counters = new ArrayList<>();
         long serialCounter = 1;
         
@@ -299,10 +171,10 @@ public class DataSeedingService {
             waterCounter.setCurrentIndex(1000.0 + random.nextDouble() * 8000);
             waterCounter.setLastReadingDate(LocalDateTime.now().minusDays(random.nextInt(90)));
             waterCounter.setActive(true);
-            counters.add(counterRepository.save(waterCounter));
+            counters.add(waterCounter);
             
-            // Create electricity counter for 85% of addresses
-            if (random.nextDouble() < 0.85) {
+            // Create electricity counter for 70% of addresses
+            if (random.nextDouble() < 0.7) {
                 Counter elecCounter = new Counter();
                 elecCounter.setOdooId(serialCounter);
                 elecCounter.setSerialNumber(String.format("%09d", serialCounter++));
@@ -312,24 +184,27 @@ public class DataSeedingService {
                 elecCounter.setCurrentIndex(5000.0 + random.nextDouble() * 25000);
                 elecCounter.setLastReadingDate(LocalDateTime.now().minusDays(random.nextInt(90)));
                 elecCounter.setActive(true);
-                counters.add(counterRepository.save(elecCounter));
+                counters.add(elecCounter);
             }
         }
         
-        return counters;
+        // Batch save all counters at once
+        return counterRepository.saveAll(counters);
     }
 
-    private void createProductionReadings(List<Counter> counters) {
-        // Create readings for 60% of counters with historical data
-        int readingsToCreate = (int) (counters.size() * 0.6);
+    private void createReadings(List<Counter> counters) {
+        List<Reading> readings = new ArrayList<>();
+        
+        // Create readings for 50% of counters with minimal historical data
+        int readingsToCreate = Math.min(counters.size() / 2, 20); // Limit to max 20 counters
         
         for (int i = 0; i < readingsToCreate; i++) {
             Counter counter = counters.get(i);
             Agent testAgent = agentRepository.findByOdooId(1L).orElse(null);
             
             if (testAgent != null) {
-                // Create 2-3 historical readings per counter
-                int numReadings = 2 + random.nextInt(2);
+                // Create only 1-2 readings per counter for faster seeding
+                int numReadings = 1 + random.nextInt(2);
                 
                 for (int j = 0; j < numReadings; j++) {
                     Reading reading = new Reading();
@@ -344,11 +219,11 @@ public class DataSeedingService {
                     
                     reading.setValue((int) (baseValue + (increment * (j + 1))));
                     reading.setReadingDate(LocalDateTime.now()
-                                         .minusDays(90 - (j * 30) + random.nextInt(10))
+                                         .minusDays(30 - (j * 15) + random.nextInt(5))
                                          .atZone(ZoneId.systemDefault()).toInstant());
                     
-                    // Vary status distribution
-                    ReadingStatus[] statuses = {ReadingStatus.PENDING, ReadingStatus.VALIDATED, ReadingStatus.SENT};
+                    // Simple status distribution
+                    ReadingStatus[] statuses = {ReadingStatus.PENDING, ReadingStatus.VALIDATED};
                     reading.setStatus(statuses[random.nextInt(statuses.length)]);
                     
                     reading.setMobileUuid("MOBILE_" + System.currentTimeMillis() + "_" + i + "_" + j);
@@ -359,9 +234,14 @@ public class DataSeedingService {
                         reading.setLongitude(counter.getAddress().getLongitude() + (random.nextDouble() - 0.5) * 0.001);
                     }
                     
-                    readingRepository.save(reading);
+                    readings.add(reading);
                 }
             }
+        }
+        
+        // Batch save all readings at once
+        if (!readings.isEmpty()) {
+            readingRepository.saveAll(readings);
         }
     }
 }

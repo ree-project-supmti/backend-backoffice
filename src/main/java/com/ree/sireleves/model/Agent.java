@@ -23,8 +23,8 @@ public class Agent {
     private String lastName;
     private String phone;
 
-    @Column(nullable = false, length = 6)
-    private String secretCode;
+    @Column(nullable = false, length = 255)
+    private String secretCode; // Will stored the hased version for more security
 
     @Column(nullable = false)
     private String district; // quartier affecté
