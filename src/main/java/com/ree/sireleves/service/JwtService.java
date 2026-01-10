@@ -60,6 +60,11 @@ public class JwtService {
                 .compact();
     }
 
+    public String refreshMobileToken(String agentId) {
+        // Generate a new token with fresh 10-minute expiration from now
+        return generateMobileToken(agentId, Duration.ofMinutes(10));
+    }
+
     public Jws<Claims> parseToken(String token) {
         return Jwts.parser()          // API JJWT 0.12.x
                 .verifyWith(key)      // remplacement de setSigningKey(...)
