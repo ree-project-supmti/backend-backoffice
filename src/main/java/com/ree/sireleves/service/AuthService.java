@@ -5,6 +5,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import com.ree.sireleves.dto.AuthRequest;
 import com.ree.sireleves.model.User;
+import com.ree.sireleves.model.Role;
 import com.ree.sireleves.repository.UserRepository;
 import java.time.Instant;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,18 @@ public class AuthService {
         if(!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())){
             throw new RuntimeException("Invalid credentials");
         }
+        
+        // Check if user has only ROLE_AGENT - reject backoffice access
+        boolean hasOnlyAgentRole = user.getRoles().stream()
+                .allMatch(role -> "ROLE_AGENT".equals(role.getName()));
+        
+        boolean hasBackofficeRole = user.getRoles().stream()
+                .anyMatch(role -> "ROLE_USER".equals(role.getName()) || "ROLE_SUPERADMIN".equals(role.getName()));
+        
+        if (hasOnlyAgentRole || !hasBackofficeRole) {
+            throw new RuntimeException("ROLE_AGENT not allowed for backoffice access");
+        }
+        
         // generate JWT
         return jwtService.generateToken(user);
     }
