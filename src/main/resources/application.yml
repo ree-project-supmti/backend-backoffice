@@ -14,3 +14,11 @@ jwt:
   expiration-minutes: 30
 server:
   port: 8585
+
+odoo:
+  api:
+    url: https://nonpurposive-nonpendently-deloras.ngrok-free.dev
+    database: Ree-database
+    username: chaimaayaqine27@gmail.com
+    password: openpgpwd
+
