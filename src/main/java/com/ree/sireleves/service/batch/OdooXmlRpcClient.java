@@ -113,6 +113,30 @@ public class OdooXmlRpcClient {
                 )
         );
     }
+    @SuppressWarnings("unchecked")
+    public Object[] fetchAgents() throws Exception {
+
+        return (Object[]) objectClient.execute(
+                "execute_kw",
+                List.of(
+                        db,
+                        uid,
+                        password,
+                        "hr.employee",
+                        "search_read",
+                        List.of(List.of()),
+                        Map.of(
+                                "fields", List.of(
+                                        "id",
+                                        "name",
+                                        "work_phone",
+                                        "mobile_phone",
+                                        "department_id"
+                                )
+                        )
+                )
+        );
+    }
 
 }
 

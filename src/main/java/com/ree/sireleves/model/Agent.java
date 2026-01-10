@@ -102,4 +102,12 @@ public class Agent {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    public String getSecretCode() {
+        return secretCode;
+    }
+
+    public void setSecretCode(String secretCode) {
+        this.secretCode = secretCode;
+    }
 }
