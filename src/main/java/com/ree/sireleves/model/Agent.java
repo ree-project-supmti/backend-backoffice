@@ -27,7 +27,7 @@ public class Agent {
     @Column(nullable = false, length = 6)
     private String secretCode;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String district; // quartier affecté
 
    /* @OneToOne(optional = false)

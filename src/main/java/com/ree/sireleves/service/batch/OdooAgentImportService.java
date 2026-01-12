@@ -54,10 +54,13 @@ public class OdooAgentImportService {
             agent.setPhone(phone);
 
             // ----- District -----
-            Object[] department = (Object[]) e.get("department_id");
-            if (department != null) {
-                agent.setDistrict(formatDistrict((String) department[1]));
+            Object depObj = e.get("department_id");
+            if (depObj instanceof Object[] depArray && depArray.length > 1) {
+                agent.setDistrict(formatDistrict((String) depArray[1]));
+            } else {
+                agent.setDistrict(null); // pas de département assigné
             }
+
 
             // ----- Secret Code -----
             if (agent.getSecretCode() == null) {

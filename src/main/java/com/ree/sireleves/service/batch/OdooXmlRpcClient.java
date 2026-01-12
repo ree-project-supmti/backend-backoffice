@@ -138,5 +138,22 @@ public class OdooXmlRpcClient {
         );
     }
 
+
+    @SuppressWarnings("unchecked")
+    public Integer createMeterReading(Map<String, Object> values) throws Exception {
+
+        return (Integer) objectClient.execute(
+                "execute_kw",
+                List.of(
+                        db,
+                        uid,
+                        password,
+                        "x_meter_reading",
+                        "create",
+                        List.of(values)
+                )
+        );
+    }
+
 }
 
