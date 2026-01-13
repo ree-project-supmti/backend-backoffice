@@ -94,14 +94,6 @@ public class Agent {
         this.user = user;
     }*/
 
-    public String getSecretCode() {
-        return secretCode;
-    }
-
-    public void setSecretCode(String secretCode) {
-        this.secretCode = secretCode;
-    }
-
     public Boolean getActive() {
         return active;
     }

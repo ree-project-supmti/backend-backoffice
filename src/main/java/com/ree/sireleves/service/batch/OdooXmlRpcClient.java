@@ -1,17 +1,15 @@
 package com.ree.sireleves.service.batch;
 
-import jakarta.annotation.PostConstruct;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class OdooXmlRpcClient {

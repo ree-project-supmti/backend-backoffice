@@ -98,7 +98,9 @@ public class DataSeedingService {
         for (int i = 1; i <= 30; i++) {
             Client client = new Client();
             client.setOdooId((long) i);
-            client.setName(firstNames[i % firstNames.length] + " " + lastNames[i % lastNames.length]);
+            client.setFirstName(firstNames[i % firstNames.length]);
+            client.setLastName(lastNames[i % lastNames.length]);
+            // client.setName(firstNames[i % firstNames.length] + " " + lastNames[i % lastNames.length]);
             client.setPhone("+212 " + (random.nextBoolean() ? "6" : "5") + 
                            String.format("%02d", random.nextInt(100)) + 
                            String.format("%02d", random.nextInt(100)) + 
