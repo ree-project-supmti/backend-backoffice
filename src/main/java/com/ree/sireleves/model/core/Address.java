@@ -20,11 +20,15 @@ public class Address {
     private String apartmentNumber;
     private String postalCode;
 
+    private String apartment;
+    private String building;
+    private String residence;
+
     private Double latitude;
     private Double longitude;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
 
@@ -130,6 +134,30 @@ public class Address {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
+    }
+
+    public String getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(String building) {
+        this.building = building;
+    }
+
+    public String getResidence() {
+        return residence;
+    }
+
+    public void setResidence(String residence) {
+        this.residence = residence;
     }
 
     public Client getClient() {

@@ -95,7 +95,9 @@ public class MobileTourService {
                                     counter.getSerialNumber(),
                                     counter.getType(),
                                     lastReadingValues.get(counter.getId()),
-                                    counter.getClient() != null ? counter.getClient().getName() : null
+                                    counter.getClient() != null ? 
+                                        counter.getClient().getFirstName() + " " + counter.getClient().getLastName() : 
+                                        null
                             ))
                             .collect(Collectors.toList());
 
