@@ -26,7 +26,7 @@ public class Agent {
     @Column(nullable = false, length = 255)
     private String secretCode; // Will stored the hased version for more security
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String district; // quartier affecté
 
    /* @OneToOne(optional = false)
@@ -94,19 +94,19 @@ public class Agent {
         this.user = user;
     }*/
 
-    public String getSecretCode() {
-        return secretCode;
-    }
-
-    public void setSecretCode(String secretCode) {
-        this.secretCode = secretCode;
-    }
-
     public Boolean getActive() {
         return active;
     }
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public String getSecretCode() {
+        return secretCode;
+    }
+
+    public void setSecretCode(String secretCode) {
+        this.secretCode = secretCode;
     }
 }

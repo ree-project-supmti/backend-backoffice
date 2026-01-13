@@ -1,6 +1,7 @@
 package com.ree.sireleves.repository;
 
 import com.ree.sireleves.model.Reading;
+import com.ree.sireleves.model.core.Counter;
 import com.ree.sireleves.model.enums.ReadingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,13 @@ public interface ReadingRepository extends JpaRepository<Reading, Long> {
     Optional<Reading> findByMobileUuid(String mobileUuid);
 
     List<Reading> findByStatus(ReadingStatus status);
+
+    List<Reading> findByStatusAndSentAtIsNull(ReadingStatus status);
+
+    Optional<Reading> findFirstByCounterAndReadingDateBeforeOrderByReadingDateDesc(
+            Counter counter,
+            Instant date
+    );
 
     @Query("""
         select r from Reading r

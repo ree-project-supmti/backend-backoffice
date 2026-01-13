@@ -47,7 +47,7 @@ public class SecurityConfig {
 
 
                         // Batch Odoo
-                        .requestMatchers("/api/batch/**").hasRole("SUPERADMIN")
+                        .requestMatchers("/api/batch/**").hasAnyRole("USER", "SUPERADMIN")
 
                         // Backoffice
                         .requestMatchers("/api/backoffice/**").hasAnyRole("USER", "SUPERADMIN")
