@@ -2,6 +2,8 @@ package com.ree.sireleves.repository;
 
 import com.ree.sireleves.model.Reading;
 import com.ree.sireleves.model.enums.ReadingStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -93,6 +95,16 @@ public interface ReadingRepository extends JpaRepository<Reading, Long> {
     List<Reading> findLast12Readings(
             @Param("counterId") Long counterId,
             org.springframework.data.domain.Pageable pageable
+    );
+
+    // Pagination support for district filtering
+    @Query("""
+    select r from Reading r
+    where r.counter.address.district = :district
+""")
+    Page<Reading> findByCounterAddressDistrict(
+            @Param("district") String district,
+            Pageable pageable
     );
 
 }

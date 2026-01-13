@@ -3,6 +3,8 @@ package com.ree.sireleves.repository.core;
 import com.ree.sireleves.model.core.Address;
 import com.ree.sireleves.model.core.Counter;
 import com.ree.sireleves.model.enums.CounterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,11 +36,18 @@ public interface CounterRepository extends JpaRepository<Counter, Long> {
 
     long countByType(CounterType type);
 
-
-    //List<Counter> findByDistrict(String district);
-
     List<Counter> findByAddress_District(String district);
 
+    // Pagination support for district filtering
+    @Query("""
+        select c from Counter c
+        where c.address.district = :district
+        order by c.serialNumber
+    """)
+    Page<Counter> findByAddress_DistrictOrderBySerialNumber(
+            @Param("district") String district,
+            Pageable pageable
+    );
 
     int countByAddress(Address address);
 

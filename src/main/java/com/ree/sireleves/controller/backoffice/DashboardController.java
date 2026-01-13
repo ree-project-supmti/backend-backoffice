@@ -22,7 +22,11 @@ public class DashboardController {
             @RequestParam Instant start,
             @RequestParam Instant end
     ) {
-        double coverage = dashboardService.coverageRateByDistrict(district, start, end);
-        return new DashboardGlobalDTO(0, 0, coverage);
+        // Get real data from the service
+        long totalCounters = dashboardService.getTotalCountersByDistrict(district);
+        long totalReadings = dashboardService.getTotalReadingsByDistrict(district, start, end);
+        double coverageRate = dashboardService.coverageRateByDistrict(district, start, end) / 100.0; // Convert percentage to decimal
+        
+        return new DashboardGlobalDTO(totalCounters, totalReadings, coverageRate);
     }
 }

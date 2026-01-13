@@ -1,12 +1,15 @@
 package com.ree.sireleves.service.dashboard;
 
-
 import com.ree.sireleves.dto.dashboard.CounterCreateRequest;
 import com.ree.sireleves.model.core.*;
 import com.ree.sireleves.model.enums.CounterType;
 import com.ree.sireleves.repository.core.AddressRepository;
 import com.ree.sireleves.repository.core.CounterRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,14 +25,9 @@ public class CounterService {
         this.addressRepository = addressRepository;
     }
 
-
-
     public Counter create(CounterCreateRequest request) {
-
         Address address = addressRepository.findById(request.addressId())
                 .orElseThrow(() -> new IllegalArgumentException("Adresse introuvable"));
-
-
 
         long count = counterRepository.countByAddress_Id(address.getId());
 
@@ -59,6 +57,24 @@ public class CounterService {
         counter.setClient(client);
 
         return counterRepository.save(counter);
+    }
+
+    public Page<Counter> getAllCounters(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") 
+            ? Sort.by(sortBy).descending() 
+            : Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return counterRepository.findAll(pageable);
+    }
+
+    public Page<Counter> getCountersByDistrict(String district, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") 
+            ? Sort.by(sortBy).descending() 
+            : Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return counterRepository.findByAddress_DistrictOrderBySerialNumber(district, pageable);
     }
 
     private boolean addressIsBuilding(Address address) {

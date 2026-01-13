@@ -30,6 +30,14 @@ public class DashboardService {
         return (double) readingsDone / totalCounters * 100.0;
     }
 
+    public long getTotalCountersByDistrict(String district) {
+        return counterRepository.countActiveByDistrict(district);
+    }
+
+    public long getTotalReadingsByDistrict(String district, Instant start, Instant end) {
+        return readingRepository.countByDistrictAndPeriod(district, start, end);
+    }
+
     public long readingsByAgent(Long agentId, Instant start, Instant end) {
         return readingRepository.countByAgentAndPeriod(agentId, start, end);
     }

@@ -1,13 +1,9 @@
 // File: src/main/java/com/ree/sireleves/service/AuthService.java
 package com.ree.sireleves.service;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import com.ree.sireleves.dto.AuthRequest;
 import com.ree.sireleves.model.User;
-import com.ree.sireleves.model.Role;
 import com.ree.sireleves.repository.UserRepository;
-import java.time.Instant;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
