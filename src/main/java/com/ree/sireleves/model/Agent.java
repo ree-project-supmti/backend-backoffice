@@ -1,6 +1,5 @@
 package com.ree.sireleves.model;
 
-import com.ree.sireleves.model.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -24,8 +23,8 @@ public class Agent {
     private String lastName;
     private String phone;
 
-    @Column(nullable = false, length = 6)
-    private String secretCode;
+    @Column(nullable = false, length = 255)
+    private String secretCode; // Will stored the hased version for more security
 
     //@Column(nullable = false)
     private String district; // quartier affecté
@@ -94,6 +93,14 @@ public class Agent {
     public void setUser(User user) {
         this.user = user;
     }*/
+
+    public String getSecretCode() {
+        return secretCode;
+    }
+
+    public void setSecretCode(String secretCode) {
+        this.secretCode = secretCode;
+    }
 
     public Boolean getActive() {
         return active;

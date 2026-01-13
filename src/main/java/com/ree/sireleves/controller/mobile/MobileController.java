@@ -1,11 +1,16 @@
 package com.ree.sireleves.controller.mobile;
 
+import com.ree.sireleves.dto.mobile.MobileBatchReadingResponseDTO;
 import com.ree.sireleves.dto.mobile.MobileReadingRequestDTO;
+import com.ree.sireleves.dto.mobile.MobileTourDownloadDTO;
 import com.ree.sireleves.model.Reading;
 import com.ree.sireleves.service.mobile.MobileReadingService;
 import com.ree.sireleves.service.mobile.MobileTourService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,6 +35,25 @@ public class MobileController {
         return tourService.getTourneeForAgent(agentId);
     }
 
+    @GetMapping("/agents/{agentId}/download")
+    public MobileTourDownloadDTO downloadTour(
+            @PathVariable Long agentId,
+            Authentication authentication
+    ) {
+        // Extract agent ID from authentication token
+        String authenticatedAgentId = authentication.getName();
+        
+        // Validate that the requested agent ID matches the authenticated agent
+        if (!authenticatedAgentId.equals(agentId.toString())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Cannot download tour for another agent"
+            );
+        }
+        
+        return tourService.downloadTour(agentId);
+    }
+
     @PostMapping("/readings")
     public Reading submitReading(@RequestBody MobileReadingRequestDTO dto) {
         Reading reading = new Reading();
@@ -39,5 +63,16 @@ public class MobileController {
         reading.setLatitude(dto.latitude());
         reading.setLongitude(dto.longitude());
         return readingService.submitReading(reading);
+    }
+
+    @PostMapping("/readings/batch")
+    public MobileBatchReadingResponseDTO submitBatchReadings(
+            @RequestBody List<MobileReadingRequestDTO> readings,
+            Authentication authentication
+    ) {
+        // Extract agent ID from authentication token
+        Long authenticatedAgentId = Long.parseLong(authentication.getName());
+        
+        return readingService.submitBatchReadings(readings, authenticatedAgentId);
     }
 }

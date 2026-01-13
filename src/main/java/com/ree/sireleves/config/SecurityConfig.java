@@ -1,13 +1,15 @@
 // File: src/main/java/com/ree/sireleves/config/SecurityConfig.java
 package com.ree.sireleves.config;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.ree.sireleves.service.JwtService;
-import com.ree.sireleves.security.JwtAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.ree.sireleves.security.JwtAuthenticationFilter;
+import com.ree.sireleves.service.JwtService;
 
 @Configuration
 public class SecurityConfig {
@@ -22,6 +24,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Health endpoints (public)
+                        .requestMatchers("/api/health", "/api/mobile/health").permitAll()
+                        // Data seeding endpoints (public for development)
+                        .requestMatchers("/api/seed-test-data", "/api/clear-test-data").permitAll()
+                        
                         // Mobile
                         .requestMatchers("/api/mobile/auth/**").permitAll()  // doit être ici !
                         .requestMatchers("/api/auth/**").permitAll()
