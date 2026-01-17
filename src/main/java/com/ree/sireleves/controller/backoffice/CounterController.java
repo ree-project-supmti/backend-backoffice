@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/backoffice/counters")
 @PreAuthorize("hasRole('USER')")
@@ -47,12 +45,6 @@ public class CounterController {
             @RequestParam(defaultValue = "serialNumber") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
         return counterService.getCountersByDistrict(district, page, size, sortBy, sortDir);
-    }
-
-    // READ - list
-    @GetMapping
-    public List<Counter> findAll() {
-        return counterService.findAll();
     }
 
     // READ - detail
