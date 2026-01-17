@@ -40,17 +40,17 @@ public class MobileAuthService {
         // Validate input is not null or empty
         if (secretCode == null || secretCode.trim().isEmpty()) {
             logger.warn("Authentication attempt with null or empty secret code");
-            throw new AuthException("Secret code is required");
+            throw new AuthException("Le code secret est requis.");
         }
-        
+
         // Clean the secret code by removing whitespace and non-digit characters
         String cleanedSecretCode = secretCode.replaceAll("\\s+", "").replaceAll("\\D", "");
-        
+
         // Validate cleaned secret code is exactly 6 digits
         if (!cleanedSecretCode.matches("\\d{6}")) {
-            logger.warn("Authentication attempt with invalid secret code format. Original length: {}, Cleaned length: {}", 
+            logger.warn("Authentication attempt with invalid secret code format. Original length: {}, Cleaned length: {}",
                        secretCode.length(), cleanedSecretCode.length());
-            throw new AuthException("Secret code must be exactly 6 digits");
+            throw new AuthException("Le code secret doit contenir exactement 6 chiffres.");
         }
 
         Agent agent = agentRepository.findByActiveTrue().stream()
@@ -58,7 +58,7 @@ public class MobileAuthService {
                 .findFirst()
                 .orElseThrow(() -> {
                     logger.warn("Authentication failed: Invalid secret code provided");
-                    return new AuthException("Invalid secret code");
+                    return new AuthException("Code secret incorrect. Veuillez réessayer.");
                 });
 
         logger.info("Successful authentication for agent ID: {}", agent.getId());
@@ -73,28 +73,28 @@ public class MobileAuthService {
     public void changeSecretCode(Long agentId, String oldSecretCode, String newSecretCode) throws AuthException {
         // Retrieve the agent
         Agent agent = agentRepository.findById(agentId)
-                .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Agent non trouvé."));
 
         // Clean and validate old secret code
         if (oldSecretCode == null || oldSecretCode.trim().isEmpty()) {
-            throw new AuthException("Old secret code is required");
+            throw new AuthException("L'ancien code secret est requis.");
         }
         String cleanedOldSecretCode = oldSecretCode.replaceAll("\\s+", "").replaceAll("\\D", "");
-        
+
         // Validate old secret code matches current (compare hashed)
         if (!passwordEncoder.matches(cleanedOldSecretCode, agent.getSecretCode())) {
-            throw new AuthException("Old secret code is incorrect");
+            throw new AuthException("L'ancien code secret est incorrect.");
         }
 
         // Clean and validate new secret code
         if (newSecretCode == null || newSecretCode.trim().isEmpty()) {
-            throw new IllegalArgumentException("New secret code is required");
+            throw new IllegalArgumentException("Le nouveau code secret est requis.");
         }
         String cleanedNewSecretCode = newSecretCode.replaceAll("\\s+", "").replaceAll("\\D", "");
-        
+
         // Validate new secret code is exactly 6 digits
         if (!cleanedNewSecretCode.matches("\\d{6}")) {
-            throw new IllegalArgumentException("New secret code must be exactly 6 digits");
+            throw new IllegalArgumentException("Le nouveau code secret doit contenir exactement 6 chiffres.");
         }
 
         // Hash and update agent's secret code

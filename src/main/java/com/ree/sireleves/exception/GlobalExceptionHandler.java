@@ -1,5 +1,6 @@
 package com.ree.sireleves.exception;
 
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,21 +111,42 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ErrorResponse> handleBadCredentials(
-            BadCredentialsException ex, 
+            BadCredentialsException ex,
             HttpServletRequest request) {
-        
+
         logger.warn("Bad credentials: {}", ex.getMessage());
-        
+
         ErrorResponse error = ErrorResponse.of(
             HttpStatus.UNAUTHORIZED.value(),
             "Unauthorized",
             "Invalid credentials",
             request.getRequestURI()
         );
-        
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
-    
+
+    /**
+     * Handles AuthException (authentication failures) - returns 401 Unauthorized.
+     */
+    @ExceptionHandler(AuthException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ErrorResponse> handleAuthException(
+            AuthException ex,
+            HttpServletRequest request) {
+
+        logger.warn("Authentication failed: {}", ex.getMessage());
+
+        ErrorResponse error = ErrorResponse.of(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Unauthorized",
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
     /**
      * Handles IllegalArgumentException - returns 400 Bad Request.
      */
