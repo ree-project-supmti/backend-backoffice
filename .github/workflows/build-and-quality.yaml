@@ -45,7 +45,7 @@ jobs:
           -Dsonar.projectKey=ree-project-supmti_backend-backoffice \
           -Dsonar.organization=ree-project-supmti \
           -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=$SONAR_TOKEN
+          -Dsonar.login=$REE_SONAR_TOKEN
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
